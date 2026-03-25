@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>TradeBook</title>
 
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 
-:root {
+:root{
 --bg:#080c14;
 --surface:#0f1623;
 --surface2:#161e2e;
@@ -24,195 +25,126 @@
 --radius:14px;
 }
 
-*{box-sizing:border-box;margin:0;padding:0}
-
 body{
 background:var(--bg);
 color:var(--text);
 font-family:'Sora',sans-serif;
-min-height:100vh;
+margin:0;
 }
 
-.glow-bg{
-position:fixed;
-inset:0;
-pointer-events:none;
-background:
-radial-gradient(ellipse 600px 400px at 20% 10%, rgba(0,229,160,0.05) 0%, transparent 70%),
-radial-gradient(ellipse 500px 400px at 80% 80%, rgba(14,165,233,0.05) 0%, transparent 70%);
+.stats{
+display:grid;
+grid-template-columns:repeat(6,1fr);
+gap:16px;
+margin-bottom:30px;
 }
 
-/* AUTH */
-
-#auth-screen{
-min-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-padding:24px;
-}
-
-.auth-card{
+.stat-card{
 background:var(--surface);
 border:1px solid var(--border);
-border-radius:20px;
-padding:48px 40px;
-width:100%;
-max-width:420px;
+border-radius:var(--radius);
+padding:20px;
 }
 
-.auth-logo{
-display:flex;
-align-items:center;
-gap:14px;
-margin-bottom:32px;
-}
-
-.auth-logo-icon{
-width:52px;
-height:52px;
-background:linear-gradient(135deg,var(--accent),var(--accent2));
-border-radius:14px;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:26px;
-}
-
-.auth-tabs{
-display:flex;
-background:var(--surface2);
-border-radius:10px;
-padding:4px;
-margin-bottom:20px;
-}
-
-.auth-tab{
-flex:1;
-padding:9px;
-text-align:center;
-font-size:13px;
-font-weight:600;
-color:var(--muted);
-cursor:pointer;
-border-radius:8px;
-border:none;
-background:none;
-}
-
-.auth-tab.active{
-background:var(--surface);
-color:var(--text);
-}
-
-.auth-field{
-margin-bottom:16px;
-}
-
-.auth-field label{
+.stat-label{
 font-size:11px;
 color:var(--muted);
 text-transform:uppercase;
-letter-spacing:.8px;
+margin-bottom:10px;
 }
 
-.auth-field input{
-width:100%;
-background:var(--surface2);
-border:1px solid var(--border);
-border-radius:10px;
-padding:12px;
-color:var(--text);
+.stat-value{
+font-family:'DM Mono',monospace;
+font-size:20px;
 }
 
-.btn-auth{
-width:100%;
-padding:13px;
-background:linear-gradient(135deg,var(--accent),#00c47e);
-border:none;
-border-radius:10px;
-color:#080c14;
-font-weight:700;
-cursor:pointer;
-}
-
-/* seletor tema */
-
-.theme-picker{
-margin-bottom:20px;
-}
-
-.theme-picker select{
-width:100%;
-margin-top:6px;
-background:var(--surface2);
-border:1px solid var(--border);
-padding:10px;
-border-radius:8px;
-color:var(--text);
-font-family:Sora;
-}
+.green{color:var(--accent)}
+.red{color:var(--red)}
 
 </style>
+
 </head>
 
 <body>
 
-<div class="glow-bg"></div>
+<div class="stats">
 
-<div id="auth-screen">
-
-<div class="auth-card">
-
-<div class="auth-logo">
-<div class="auth-logo-icon">📒</div>
-<div>
-<h1>Trade<span style="color:var(--accent)">Book</span></h1>
-<p style="font-size:12px;color:var(--muted)">Seu diário de operações</p>
-</div>
+<div class="stat-card">
+<div class="stat-label">Total Operações</div>
+<div class="stat-value" id="total-ops">—</div>
 </div>
 
-<div class="auth-tabs">
-<button class="auth-tab active">Entrar</button>
-<button class="auth-tab">Criar conta</button>
+<div class="stat-card">
+<div class="stat-label">Lucro Total</div>
+<div class="stat-value" id="lucro-total">—</div>
 </div>
 
-<!-- seletor tema -->
-
-<div class="theme-picker">
-
-<label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">
-Tema da interface
-</label>
-
-<select id="theme-select" onchange="changeTheme(this.value)">
-
-<option value="green">Verde</option>
-<option value="blue">Azul</option>
-<option value="purple">Roxo</option>
-<option value="gold">Dourado</option>
-<option value="red">Vermelho</option>
-
-</select>
-
+<div class="stat-card">
+<div class="stat-label">Lucrativas</div>
+<div class="stat-value green" id="ops-pos">—</div>
 </div>
 
-<div class="auth-field">
-<label>Email</label>
-<input type="email">
+<div class="stat-card">
+<div class="stat-label">Melhor Trade</div>
+<div class="stat-value green" id="melhor-trade">—</div>
 </div>
 
-<div class="auth-field">
-<label>Senha</label>
-<input type="password">
+<div class="stat-card">
+<div class="stat-label">Winrate</div>
+<div class="stat-value" id="winrate">—</div>
 </div>
 
-<button class="btn-auth">Entrar</button>
-
+<div class="stat-card">
+<div class="stat-label">Média por Trade</div>
+<div class="stat-value" id="media-trade">—</div>
 </div>
+
 </div>
 
 <script>
+
+function fmt(v){
+const abs=Math.abs(v).toFixed(2).replace('.',',')
+return (v<0?'-':'')+'R$ '+abs
+}
+
+function renderizar(ops){
+
+let lucroTotal=0
+let opsPos=0
+let melhor=null
+
+ops.forEach(op=>{
+
+const lucro=(op.preco_venda-op.preco_compra)*op.quantidade
+
+lucroTotal+=lucro
+
+if(lucro>0)opsPos++
+
+if(!melhor||lucro>melhor.lucro){
+melhor={ticker:op.ticker,lucro}
+}
+
+})
+
+const winrate=ops.length?((opsPos/ops.length)*100).toFixed(1):0
+const mediaTrade=ops.length?(lucroTotal/ops.length):0
+
+document.getElementById("total-ops").textContent=ops.length
+document.getElementById("ops-pos").textContent=opsPos
+
+document.getElementById("lucro-total").textContent=fmt(lucroTotal)
+
+document.getElementById("winrate").textContent=winrate+"%"
+document.getElementById("media-trade").textContent=fmt(mediaTrade)
+
+if(melhor){
+document.getElementById("melhor-trade").textContent=
+melhor.ticker+" "+fmt(melhor.lucro)
+}
+
+}
 
 function changeTheme(theme){
 
@@ -220,37 +152,18 @@ const root=document.documentElement
 
 const themes={
 
-green:{
-accent:"#00e5a0",
-accent2:"#0ea5e9"
-},
-
-blue:{
-accent:"#3b82f6",
-accent2:"#06b6d4"
-},
-
-purple:{
-accent:"#8b5cf6",
-accent2:"#ec4899"
-},
-
-gold:{
-accent:"#f59e0b",
-accent2:"#fbbf24"
-},
-
-red:{
-accent:"#ef4444",
-accent2:"#f43f5e"
-}
+green:{accent:"#00e5a0",accent2:"#0ea5e9"},
+blue:{accent:"#3b82f6",accent2:"#06b6d4"},
+purple:{accent:"#8b5cf6",accent2:"#ec4899"},
+gold:{accent:"#f59e0b",accent2:"#fbbf24"},
+red:{accent:"#ef4444",accent2:"#f43f5e"}
 
 }
 
 if(!themes[theme])return
 
-root.style.setProperty('--accent',themes[theme].accent)
-root.style.setProperty('--accent2',themes[theme].accent2)
+root.style.setProperty("--accent",themes[theme].accent)
+root.style.setProperty("--accent2",themes[theme].accent2)
 
 localStorage.setItem("tradebook-theme",theme)
 
@@ -259,13 +172,7 @@ localStorage.setItem("tradebook-theme",theme)
 const savedTheme=localStorage.getItem("tradebook-theme")
 
 if(savedTheme){
-
 changeTheme(savedTheme)
-
-const select=document.getElementById("theme-select")
-
-if(select)select.value=savedTheme
-
 }
 
 </script>
